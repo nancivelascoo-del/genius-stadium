@@ -57,7 +57,9 @@ jobs:
       - name: Build site folder (game files only)
         run: |
           mkdir _site
-          cp -r index.html style.css sw.js manifest.webmanifest .nojekyll js data flags icons _site/
+          cp -r index.html style.css sw.js manifest.webmanifest .nojekyll js data flags icons engine fonts _site/
+          # Fail the deploy if any file the service worker precaches is missing from the site.
+          node tools/check-site.js _site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
