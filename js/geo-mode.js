@@ -1,7 +1,7 @@
 // Geo Arena: tap-the-map runs, flags, capitals, explore. World + USA.
 import { GEO } from '../data/geo.js';
 import { S, save, $, $$, esc, sfx, toast, shuffle, fmtTime, route, go, topbar, hook, bump, setMax, miss, fixed, onCleanup } from './core.js';
-import { runQuiz, finishRound, mc } from './quiz.js';
+import { runQuiz, finishRound, mc, setReview } from './quiz.js';
 
 const C = GEO.countries, ST = GEO.states;
 const REGIONS = ['world', 'europe', 'africa', 'asia', 'namerica', 'samerica', 'oceania'];
@@ -17,25 +17,26 @@ route('geo', view => {
   const usa = usaMode();
   const lvl = S.seen.geoLevel || 1; const reg = S.seen.geoRegion || 'europe';
   view.innerHTML = `${topbar('🌍 Geo Arena')}
+  <div class="diffbar"><span>Difficulty</span>${levelChips(lvl)}</div><p class="diffnote" data-testid="diffnote">${DIFF_NOTE[lvl]}</p>
   <div class="seg" role="tablist"><button data-testid="tab-world" class="${!usa ? 'on' : ''}">🌐 World</button><button data-testid="tab-usa" class="${usa ? 'on' : ''}">🇺🇸 USA</button></div>
   ${usa ? `
   <div class="modes">
     <div class="mode card"><div class="mi">🗺️</div><h3>Find the State</h3><p>Tap it on the map. Beat your time.</p>
       <div class="row"><button class="btn primary" data-testid="usa-sprint">Sprint 10</button><button class="btn" data-testid="usa-full">All 50</button></div>
-      <small>${bestTxt('map_usa_10')} · ${bestTxt('map_usa_full')}</small></div>
+      <small>${bestTxt(mapKey('usa', 10, lvl))} · ${bestTxt(mapKey('usa', 0, lvl))}</small></div>
     <div class="mode card"><div class="mi">🏛️</div><h3>State Capitals</h3><p>Watch out for big-city traps!</p>
-      ${levelChips(lvl)}<button class="btn primary" data-testid="usa-caps">Play 10</button><small>${bestTxt('caps_usa_' + lvl, 'score')}</small></div>
+      <button class="btn primary" data-testid="usa-caps">Play 10</button><small>${bestTxt('caps_usa_' + lvl, 'score')}</small></div>
     <div class="mode card"><div class="mi">🔭</div><h3>Explore USA</h3><p>Tap any state to learn about it.</p><button class="btn" data-testid="usa-explore">Explore</button></div>
   </div>` : `
   <div class="chips" data-testid="regions">${REGIONS.map(r => `<button class="chip ${r === reg ? 'on' : ''}" data-r="${r}">${RNAME[r]}</button>`).join('')}</div>
   <div class="modes">
     <div class="mode card"><div class="mi">🗺️</div><h3>Find the Country</h3><p>${RNAME[reg]} map. Tap fast, tap right.</p>
       <div class="row"><button class="btn primary" data-testid="map-sprint">Sprint 10</button><button class="btn" data-testid="map-full">Full map</button></div>
-      <small>${bestTxt('map_' + reg + '_10')} · ${bestTxt('map_' + reg + '_full')}</small></div>
-    <div class="mode card"><div class="mi">🚩</div><h3>Flag Frenzy</h3><p>Name the flag. Legend has look-alikes!</p>
-      ${levelChips(lvl)}<button class="btn primary" data-testid="flags">Play 10</button><small>${bestTxt('flags_' + lvl, 'score')}</small></div>
+      <small>${bestTxt(mapKey(reg, 10, lvl))} · ${bestTxt(mapKey(reg, 0, lvl))}</small></div>
+    <div class="mode card"><div class="mi">🚩</div><h3>Flag Frenzy</h3><p>Name the flag. Hard and Expert have look-alikes!</p>
+      <button class="btn primary" data-testid="flags">Play 10</button><small>${bestTxt('flags_' + lvl, 'score')}</small></div>
     <div class="mode card"><div class="mi">🏛️</div><h3>Capital Clash</h3><p>Match countries and capitals.</p>
-      ${levelChips(lvl)}<button class="btn primary" data-testid="caps">Play 10</button><small>${bestTxt('caps_' + lvl, 'score')}</small></div>
+      <button class="btn primary" data-testid="caps">Play 10</button><small>${bestTxt('caps_' + lvl, 'score')}</small></div>
     <div class="mode card"><div class="mi">🔭</div><h3>Explore</h3><p>Tap any country: flag, capital, more.</p><button class="btn" data-testid="explore">Explore</button><small>${Object.keys(S.seen.explored || {}).length} explored</small></div>
   </div>`}`;
   $('[data-testid=tab-world]', view).onclick = () => { S.seen.usa = false; save(); go('geo'); };
@@ -43,17 +44,20 @@ route('geo', view => {
   $$('.chip[data-r]', view).forEach(b => b.onclick = () => { S.seen.geoRegion = b.dataset.r; save(); sfx.tap(); go('geo'); });
   $$('.chip[data-l]', view).forEach(b => b.onclick = () => { S.seen.geoLevel = +b.dataset.l; save(); sfx.tap(); go('geo'); });
   const on = (id, fn) => { const b = $(`[data-testid=${id}]`, view); if (b) b.onclick = () => { sfx.tap(); fn(); }; };
-  on('map-sprint', () => go('mapplay', { region: reg, n: 10 }));
-  on('map-full', () => go('mapplay', { region: reg, n: 0 }));
-  on('usa-sprint', () => go('mapplay', { region: 'usa', n: 10 }));
-  on('usa-full', () => go('mapplay', { region: 'usa', n: 0 }));
+  on('map-sprint', () => go('mapplay', { region: reg, n: 10, lvl }));
+  on('map-full', () => go('mapplay', { region: reg, n: 0, lvl }));
+  on('usa-sprint', () => go('mapplay', { region: 'usa', n: 10, lvl }));
+  on('usa-full', () => go('mapplay', { region: 'usa', n: 0, lvl }));
   on('flags', () => go('flagquiz', { lvl }));
   on('caps', () => go('capquiz', { lvl }));
   on('usa-caps', () => go('capquiz', { lvl, usa: true }));
   on('explore', () => go('explore', { region: reg }));
   on('usa-explore', () => go('explore', { region: 'usa' }));
 });
-function levelChips(lvl) { return `<div class="chips small">${['Rookie', 'Pro', 'Legend'].map((n, i) => `<button class="chip ${lvl === i + 1 ? 'on' : ''}" data-l="${i + 1}" data-testid="lvl-${i + 1}">${n}</button>`).join('')}</div>`; }
+export const LEVELS = ['Easy', 'Medium', 'Hard', 'Expert'];
+const DIFF_NOTE = { 1: '🟢 Easy: famous places, lots of time.', 2: '🟡 Medium: more countries, trickier choices.', 3: '🟠 Hard: all countries, look-alike flags, big-city traps, less time.', 4: '🔴 Expert: tiny and rare countries, super short timer, no flag clue on the map, one wrong tap and it is shown.' };
+const mapKey = (region, n, lvl) => 'map_' + region + '_' + (n ? '10' : 'full') + ((lvl || 1) > 1 ? '_' + lvl : '');
+function levelChips(lvl) { return `<div class="chips small" data-testid="difficulty">${LEVELS.map((n, i) => `<button class="chip ${lvl === i + 1 ? 'on' : ''}" data-l="${i + 1}" data-testid="lvl-${i + 1}">${n}</button>`).join('')}</div>`; }
 function bestTxt(key, by = 'time') { const b = S.bests[key]; if (!b) return 'No best yet'; return 'Best ' + (by === 'time' ? (b.time != null ? fmtTime(b.time) : '-') : b.score.toLocaleString()); }
 
 // ---------- SVG map with pinch/drag zoom ----------
@@ -93,15 +97,21 @@ export function buildMap(box, region, onTap) {
 }
 
 // ---------- find-it run ----------
-route('mapplay', (view, { region, n }) => {
+route('mapplay', (view, { region, n, lvl = 1, ids }) => {
   const usa = region === 'usa'; const R = GEO.regions[region];
   let pool = R.shapes.filter(s => s.t).map(s => s.id);
-  if (region === 'world') pool = pool.filter(id => C[id].t <= (n ? 2 : 1));
-  const targets = shuffle(pool).slice(0, n || pool.length);
-  const key = 'map_' + region + '_' + (n ? '10' : 'full');
-  const best = S.bests[key] && S.bests[key].time;
-  let i = 0, tries = 0, firstTry = 0, t0 = performance.now(), tick = null, busy = false;
-  view.innerHTML = `${topbar('Find it: ' + RNAME[region], 'geo', `<div class="hud"><span class="pill" data-testid="qcount"></span><span class="pill time" data-testid="clock">0.0s</span></div>`)}
+  const tierOf = id => usa ? ST[id].t : C[id].t;
+  // Easy: famous ones. Medium: tiers 1-2. Hard/Expert: everything (Expert picks the hardest first).
+  const cap = region === 'world' ? (lvl >= 3 ? 3 : lvl === 2 ? 2 : (n ? 2 : 1)) : (lvl >= 3 ? 3 : lvl);
+  const lim = pool.filter(id => tierOf(id) <= cap); if (lim.length >= Math.min(10, pool.length)) pool = lim;
+  let targets = shuffle(pool).slice(0, n || pool.length);
+  if (lvl === 4 && n) { const hard = shuffle(pool.filter(id => tierOf(id) === 3)); targets = shuffle([...hard.slice(0, 7), ...shuffle(pool.filter(id => !hard.slice(0, 7).includes(id)))].slice(0, n)); }
+  if (ids) targets = shuffle(ids.slice());
+  const maxTries = lvl === 4 ? 1 : lvl === 3 ? 2 : 3;
+  const key = ids ? null : mapKey(region, n, lvl); const log = [];
+  const best = key && S.bests[key] && S.bests[key].time;
+  let wrongs = []; let i = 0, tries = 0, firstTry = 0, t0 = performance.now(), tick = null, busy = false;
+  view.innerHTML = `${topbar((ids ? '🔁 ' : '') + 'Find it: ' + RNAME[region] + (lvl > 1 ? ' · ' + LEVELS[lvl - 1] : ''), 'geo', `<div class="hud"><span class="pill" data-testid="qcount"></span><span class="pill time" data-testid="clock">0.0s</span></div>`)}
     <div class="progress"><i></i></div>
     <div class="prompt card" data-testid="prompt"><span class="pflag"></span><span class="pname"></span>${best ? `<small class="ghost">Best ${fmtTime(best)}</small>` : ''}</div>
     <div class="mapbox"></div>`;
@@ -110,8 +120,8 @@ route('mapplay', (view, { region, n }) => {
   tick = setInterval(() => { const el = performance.now() - t0; clock.textContent = fmtTime(el); if (best) clock.classList.toggle('ahead', el / Math.max(i, 0.5) <= best / targets.length); }, 100);
   onCleanup(() => clearInterval(tick));
   function show() {
-    const id = targets[i]; tries = 0; busy = false;
-    $('.pname', view).textContent = nameOf(id, usa); $('.pflag', view).innerHTML = usa ? '' : flagImg(id, 'pflagimg');
+    const id = targets[i]; tries = 0; busy = false; wrongs = [];
+    $('.pname', view).textContent = nameOf(id, usa); $('.pflag', view).innerHTML = usa || lvl === 4 ? '' : flagImg(id, 'pflagimg');
     $('[data-testid=qcount]', view).textContent = (i + 1) + '/' + targets.length; $('.progress i', view).style.width = (i / targets.length * 100) + '%';
     hook.target = () => id;
   }
@@ -119,21 +129,41 @@ route('mapplay', (view, { region, n }) => {
     if (busy) return; const want = targets[i];
     if (id === want) {
       busy = true; sfx.good(); if (tries === 0) { firstTry++; fixed(usa ? 'state' : 'geo', want); }
+      log.push({ id: want, ok: tries === 0, wrong: wrongs.slice() });
       map.mark(want, tries === 0 ? 'done' : 'late'); next(); return;
     }
     tries++; sfx.bad(); map.flash(id, 'wrong');
-    const nm = nameOf(id, usa) || (el && el.dataset.n); if (nm) toast("That's " + nm, 1100);
-    if (tries >= 3) { busy = true; miss(usa ? 'state' : 'geo', want); map.mark(want, 'reveal'); setTimeout(() => { map.unmark(want, 'reveal'); map.mark(want, 'missed'); next(); }, 1300); }
+    const nm = nameOf(id, usa) || (el && el.dataset.n); if (nm) toast("That's " + nm, 1100); wrongs.push(nm || '?');
+    if (tries >= maxTries) { busy = true; log.push({ id: want, ok: false, wrong: wrongs.slice(), shown: true }); miss(usa ? 'state' : 'geo', want); map.mark(want, 'reveal'); setTimeout(() => { map.unmark(want, 'reveal'); map.mark(want, 'missed'); next(); }, 1300); }
   }
   function next() { i++; if (i >= targets.length) done(); else setTimeout(show, 150); }
   function done() {
     clearInterval(tick); const time = performance.now() - t0; const acc = Math.round(firstTry / targets.length * 100);
     bump('mapRuns'); S.stats['map_' + region] = 1; if (region === 'usa' && !n) S.stats.map_usa_full = 1;
     if (n === 10 && time < 30000 && acc >= 80) bump('fastSprint');
-    finishRound(view, { key: acc >= 70 ? key : null, title: 'Find it: ' + RNAME[region], back: 'geo', again: () => go('mapplay', { region, n }), time, acc, total: targets.length, bestBy: 'time', big: fmtTime(time), xp: firstTry * 12 + (acc >= 90 ? 30 : 0), lines: [['Accuracy', acc + '%'], ['First-try taps', firstTry + '/' + targets.length]] });
+    setReview(mapReview(region, usa, log, lvl));
+    finishRound(view, { key: key && acc >= 70 ? key : null, title: 'Find it: ' + RNAME[region], back: 'geo', again: () => go('mapplay', { region, n, lvl, ids }), time, acc, total: targets.length, bestBy: 'time', big: fmtTime(time), xp: firstTry * 12 + (acc >= 90 ? 30 : 0), lines: [['Accuracy', acc + '%'], ['First-try taps', firstTry + '/' + targets.length]] });
   }
   show();
 });
+
+// Review for a map run: a map coloured by result, and a list you can tap to flash each place.
+function mapReview(region, usa, log, lvl) {
+  const missed = log.filter(x => !x.ok).map(x => x.id);
+  const items = log.map(x => {
+    const where = usa ? '' : (C[x.id].sub || RNAME[C[x.id].r]);
+    return { ok: x.ok, id: x.id, html_full: `<div class="rvq">${usa ? '' : flagImg(x.id, 'miniflag')} <b>${esc(nameOf(x.id, usa))}</b>${where ? ` <small class="muted">📍 ${esc(where)}</small>` : ''}</div>
+      <div class="rva">${x.ok ? '<span>✓ Found it on the first tap</span>' : `<span class="mine">Your taps: ${x.wrong.length ? esc(x.wrong.join(', ')) : 'found it after a miss'}</span><span class="right">Correct place: ${esc(nameOf(x.id, usa))}${x.shown ? ' (it was shown to you)' : ''}</span>`}</div>
+      <button class="btn small rvshow" data-show="${x.id}" data-testid="show-on-map">📍 Show on map</button>` };
+  });
+  return { items, top: '<p class="muted center">🟢 first try · 🟠 found after a miss · 🔴 missed. Tap 📍 to see where it is.</p><div class="mapbox rvmap" data-testid="review-map"></div>',
+    retry: missed.length ? () => go('mapplay', { region, n: missed.length, lvl, ids: missed }) : null,
+    wire(view) {
+      const box = $('[data-testid=review-map]', view); const map = buildMap(box, region, () => {});
+      log.forEach(x => map.mark(x.id, x.ok ? 'done' : x.shown ? 'missed' : 'late'));
+      $$('.rvshow', view).forEach(b => b.onclick = () => { sfx.tap(); box.scrollIntoView({ behavior: 'smooth', block: 'center' }); map.flash(b.dataset.show, 'reveal', 2200); });
+    } };
+}
 
 // ---------- flags ----------
 function regionPeers(id, all) { const r = C[id].r; return all.filter(x => x !== id && C[x].r === r); }
@@ -145,14 +175,15 @@ function distractors(id, lvl, all) {
   return [...new Set(pool)].slice(0, 3);
 }
 route('flagquiz', (view, { lvl }) => {
-  const all = Object.keys(C); const usable = all.filter(id => C[id].t <= lvl);
+  const all = Object.keys(C); let usable = all.filter(id => C[id].t <= lvl);
+  if (lvl === 4) { const rare = all.filter(id => C[id].t === 3); usable = [...rare, ...shuffle(all.filter(id => LOOK.some(g => g.includes(id)) && C[id].t < 3)).slice(0, 12)]; }
   const pick = pickWithRematch(usable, 'flag', 10);
   const qs = pick.map((id, k) => {
     const wr = distractors(id, lvl, all);
-    if (k % 2 === 0) return { ...mc('Which country has this flag?', C[id].n, wr.map(x => C[x].n)), img: flagImg(id, 'bigflag'), why: C[id].n + (C[id].cap ? ' · capital: ' + C[id].cap : ''), kind: 'flag', id };
+    if (k % 2 === 0 && lvl < 4 || lvl === 4 && k % 3 === 0) return { ...mc('Which country has this flag?', C[id].n, wr.map(x => C[x].n)), img: flagImg(id, 'bigflag'), why: C[id].n + (C[id].cap ? ' · capital: ' + C[id].cap : ''), kind: 'flag', id };
     const q = mc('Tap the flag of <b>' + esc(C[id].n) + '</b>', id, wr); q.choices = q.choices.map(c => flagImg(c, 'choiceflag')); q.flags = true; q.kind = 'flag'; q.id = id; return q;
   });
-  runQuiz(view, { title: '🚩 Flag Frenzy', back: 'geo', questions: qs, time: lvl === 3 ? 9 : 12, onRight: () => bump('flagsRight'),
+  runQuiz(view, { title: '🚩 Flag Frenzy', back: 'geo', questions: qs, time: [0, 12, 11, 9, 6][lvl], onRight: () => bump('flagsRight'),
     onDone: r => finishRound(view, { key: 'flags_' + lvl, title: '🚩 Flag Frenzy', back: 'geo', again: () => go('flagquiz', { lvl }), score: r.score, acc: r.acc, total: r.total, xp: r.right * 10 + r.score / 200, lines: [['Right', r.right + '/' + r.total], ['Best combo', '🔥 ' + r.maxCombo]] }) });
 });
 
@@ -160,21 +191,24 @@ route('flagquiz', (view, { lvl }) => {
 route('capquiz', (view, { lvl, usa }) => {
   let qs;
   if (usa) {
-    const all = Object.keys(ST); const usable = all.filter(id => ST[id].t <= lvl);
+    const all = Object.keys(ST); const usable = all.filter(id => lvl === 4 ? ST[id].t >= 2 : ST[id].t <= lvl);
     qs = pickWithRematch(usable, 'statecap', 10).map(id => {
       const traps = lvl >= 2 ? (TRAP[id] || []) : []; const others = shuffle(all.filter(x => x !== id)).map(x => ST[x].cap).filter(c => c !== ST[id].cap);
+      if (lvl === 4) { const rev = Math.random() < 0.4; const wr = shuffle(all.filter(x => x !== id)).slice(0, 3);
+        if (rev) return { ...mc('<b>' + esc(ST[id].cap) + '</b> is the capital of...', ST[id].n, wr.map(x => ST[x].n)), why: ST[id].cap + ' is the capital of ' + ST[id].n + '.', kind: 'statecap', id };
+        return { ...mc('Capital of <b>' + esc(ST[id].n) + '</b>?', ST[id].cap, [...new Set([...(TRAP[id] || []), ...others])].slice(0, 3)), why: ST[id].cap + ' is the capital of ' + ST[id].n + '.', kind: 'statecap', id }; }
       return { ...mc('Capital of <b>' + esc(ST[id].n) + '</b>?', ST[id].cap, [...new Set([...traps, ...others])].slice(0, 3)), why: ST[id].cap + ' is the capital of ' + ST[id].n + '.', kind: 'statecap', id };
     });
   } else {
-    const all = Object.keys(C).filter(id => C[id].cap); const usable = all.filter(id => C[id].t <= lvl);
+    const all = Object.keys(C).filter(id => C[id].cap); const usable = lvl === 4 ? all.filter(id => C[id].t === 3) : all.filter(id => C[id].t <= lvl);
     qs = pickWithRematch(usable, 'cap', 10).map((id, k) => {
       const wr = distractors(id, Math.max(lvl, 2), all);
-      if (lvl >= 2 && k % 3 === 2) return { ...mc('<b>' + esc(C[id].cap) + '</b> is the capital of...', C[id].n, wr.map(x => C[x].n)), img: '', why: C[id].cap + ' → ' + C[id].n, kind: 'cap', id };
-      return { ...mc('Capital of <b>' + esc(C[id].n) + '</b>?', C[id].cap, wr.map(x => C[x].cap)), sub: flagImg(id, 'miniflag'), why: C[id].cap + ' is the capital of ' + C[id].n + '.', kind: 'cap', id };
+      if (lvl >= 2 && k % 3 === 2 || lvl === 4 && k % 2 === 1) return { ...mc('<b>' + esc(C[id].cap) + '</b> is the capital of...', C[id].n, wr.map(x => C[x].n)), img: '', why: C[id].cap + ' → ' + C[id].n, kind: 'cap', id };
+      return { ...mc('Capital of <b>' + esc(C[id].n) + '</b>?', C[id].cap, wr.map(x => C[x].cap)), sub: lvl === 4 ? '' : flagImg(id, 'miniflag'), why: C[id].cap + ' is the capital of ' + C[id].n + '.', kind: 'cap', id };
     });
   }
   const title = usa ? '🏛️ State Capitals' : '🏛️ Capital Clash'; const key = (usa ? 'caps_usa_' : 'caps_') + lvl;
-  runQuiz(view, { title, back: 'geo', questions: qs, time: lvl === 3 ? 10 : 13, onRight: () => bump('capsRight'),
+  runQuiz(view, { title, back: 'geo', questions: qs, time: [0, 13, 12, 10, 7][lvl], onRight: () => bump('capsRight'),
     onDone: r => finishRound(view, { key, title, back: 'geo', again: () => go('capquiz', { lvl, usa }), score: r.score, acc: r.acc, total: r.total, xp: r.right * 10 + r.score / 200, lines: [['Right', r.right + '/' + r.total], ['Best combo', '🔥 ' + r.maxCombo]] }) });
 });
 // Put up to 3 previously-missed items into a round, then fill with fresh ones.

@@ -1,4 +1,4 @@
-// All questions and facts are written for Genius Stadium. Facts that can change are dated in the text.
+// All questions and facts are written for Brainiac FunZone. Facts that can change are dated in the text.
 // Format: q = question, a = right answer, w = three wrong answers, why = one short line shown after answering, t = tier 1 easy .. 3 hard
 
 export const SOCCER = [
@@ -61,6 +61,23 @@ export const SOCCER = [
   { q: 'Which national team is called "the Azzurri" (the Blues)?', a: 'Italy', w: ['France', 'Argentina', 'Greece'], why: 'France is "Les Bleus", which also means the Blues.', t: 2 },
   { q: 'Which national team is called "Oranje"?', a: 'Netherlands', w: ['Ivory Coast', 'Ghana', 'Spain'], why: 'Named after the Dutch royal family, the House of Orange.', t: 2 },
   { q: 'How does a game restart after a goal?', a: 'Kick-off', w: ['Goal kick', 'Drop ball', 'Free kick'], why: 'The team that was scored on kicks off from the center spot.', t: 1 },
+  // ---- Expert (t: 4) ----
+  { q: 'Which is the only country to play at every men\'s World Cup (through 2026)?', a: 'Brazil', w: ['Germany', 'Argentina', 'Italy'], why: 'Brazil has qualified for all 23 tournaments from 1930 to 2026.', t: 4 },
+  { q: 'Who scored a record 13 goals at the 1958 World Cup?', a: 'Just Fontaine', w: ['Pelé', 'Gerd Müller', 'Eusébio'], why: 'Fontaine of France scored 13 in just 6 games in Sweden.', t: 4 },
+  { q: 'Which two countries hosted the 2002 World Cup, the first one in Asia?', a: 'South Korea and Japan', w: ['China and Japan', 'Japan and Thailand', 'South Korea and China'], why: 'It was also the first World Cup with two host countries.', t: 4 },
+  { q: 'Who scored a hat trick in the 2022 World Cup final and still lost?', a: 'Kylian Mbappé', w: ['Lionel Messi', 'Olivier Giroud', 'Ángel Di María'], why: 'France drew 3-3 with Argentina, then lost the penalty shootout.', t: 4 },
+  { q: 'Which player scored a hat trick in the 1966 World Cup final?', a: 'Geoff Hurst', w: ['Bobby Charlton', 'Bobby Moore', 'Jimmy Greaves'], why: 'England beat West Germany 4-2 at Wembley.', t: 4 },
+  { q: 'Who won Euro 2016?', a: 'Portugal', w: ['France', 'Germany', 'Spain'], why: 'Portugal beat host France 1-0 in extra time. Éder scored.', t: 4 },
+  { q: 'In 2022, which country became the first African team to reach a men\'s World Cup semi-final?', a: 'Morocco', w: ['Senegal', 'Cameroon', 'Ghana'], why: 'Morocco beat Spain and Portugal on the way.', t: 4 },
+  { q: 'Which club won the 2013 Champions League final against Borussia Dortmund?', a: 'Bayern Munich', w: ['Real Madrid', 'Barcelona', 'Chelsea'], why: 'It was an all-German final at Wembley. Bayern won 2-1.', t: 4 },
+  { q: 'Who is the only goalkeeper ever to win the Ballon d\'Or?', a: 'Lev Yashin', w: ['Gianluigi Buffon', 'Manuel Neuer', 'Iker Casillas'], why: 'Yashin of the Soviet Union won it in 1963.', t: 4 },
+  { q: 'Which club is nicknamed "The Old Lady"?', a: 'Juventus', w: ['AC Milan', 'Benfica', 'Ajax'], why: 'In Italian it is "La Vecchia Signora".', t: 4 },
+  { q: 'At the 1950 World Cup, the USA beat which team 1-0 in a famous upset?', a: 'England', w: ['Brazil', 'Italy', 'Spain'], why: 'England were huge favorites. Joe Gaetjens scored the goal.', t: 4 },
+  { q: 'Who was the first player to score at five men\'s World Cups?', a: 'Cristiano Ronaldo', w: ['Lionel Messi', 'Miroslav Klose', 'Pelé'], why: 'Ronaldo did it in 2022 with a penalty against Ghana.', t: 4 },
+  { q: 'What was the original World Cup trophy called?', a: 'The Jules Rimet Trophy', w: ['The Henri Delaunay Trophy', 'The Golden Boot', 'The Lipton Cup'], why: 'Brazil kept it for good after their third win in 1970.', t: 4 },
+  { q: 'In most top competitions, how many substitutes can a team use in a normal 90-minute match?', a: '5', w: ['3', '4', '6'], why: 'Five subs became a permanent rule in 2022. Extra time can allow one more.', t: 4 },
+  { q: 'Who scored the "Goal of the Century" at the 1986 World Cup, dribbling past half the England team?', a: 'Diego Maradona', w: ['Pelé', 'Zico', 'Michel Platini'], why: 'Minutes earlier he had scored the "Hand of God" goal.', t: 4 },
+  { q: 'Which country hosted the 2022 World Cup, the first one played in November and December?', a: 'Qatar', w: ['Saudi Arabia', 'United Arab Emirates', 'Russia'], why: 'It moved to winter to avoid the desert summer heat.', t: 4 },
 ];
 
 // Fact of the Day: curiosity question first, then the answer and a short "why".
@@ -126,6 +143,29 @@ export const FACTS = [
   { c: 'Chess', e: '📜', q: 'The word "checkmate" comes from Persian words about...', a: 'The king (the shah)', w: ['A horse', 'A castle', 'A game of dice'], why: '"Shāh māt" roughly means "the king is helpless."' },
   { c: 'History', e: '🧱', q: 'Can you see the Great Wall of China from the Moon with just your eyes?', a: 'No', w: ['Yes, easily', 'Only at night', 'Only in winter'], why: 'It is long but very narrow. Astronauts say you can\'t.' },
   { c: 'History', e: '⚽', q: 'Which year was the first World Cup?', a: '1930', w: ['1900', '1950', '1966'], why: 'Held in Uruguay with 13 teams.' },
+  // ---- Hard facts (t: 3) ----
+  { c: 'Space', e: '🪐', q: 'Which planet has the most known moons (as of 2025)?', a: 'Saturn', w: ['Jupiter', 'Uranus', 'Neptune'], why: 'Saturn passed 270 known moons in 2025, far more than Jupiter.', t: 3 },
+  { c: 'Space', e: '🌋', q: 'What is the tallest volcano known in our solar system?', a: 'Olympus Mons', w: ['Mauna Kea', 'Mount Everest', 'Kilimanjaro'], why: 'It is on Mars and about 2.5 times as tall as Mount Everest.', t: 3 },
+  { c: 'Space', e: '✨', q: 'Which star system is closest to our Sun?', a: 'Alpha Centauri', w: ['Sirius', 'Betelgeuse', 'Polaris'], why: 'About 4.2 to 4.4 light-years away. Its star Proxima Centauri is the closest.', t: 3 },
+  { c: 'Space', e: '🔵', q: 'Which color of star is the hottest?', a: 'Blue', w: ['Red', 'Yellow', 'Orange'], why: 'Blue stars can be over 5 times hotter than our yellow Sun. Red ones are the coolest.', t: 3 },
+  { c: 'Science', e: '💨', q: 'Which gas makes up most of the air we breathe?', a: 'Nitrogen', w: ['Oxygen', 'Carbon dioxide', 'Argon'], why: 'Air is about 78% nitrogen and only about 21% oxygen.', t: 3 },
+  { c: 'Science', e: '🌡️', q: 'Which metal is a liquid at room temperature?', a: 'Mercury', w: ['Iron', 'Aluminum', 'Gold'], why: 'Mercury melts at about -39 °C, so it is runny at room temperature.', t: 3 },
+  { c: 'Science', e: '🥇', q: 'What is the chemical symbol for gold?', a: 'Au', w: ['Go', 'Gd', 'Ag'], why: 'It comes from aurum, the Latin word for gold. Ag is silver.', t: 3 },
+  { c: 'Human Body', e: '🩸', q: 'Which blood type can be given to almost anyone in an emergency?', a: 'O negative', w: ['AB positive', 'A positive', 'B negative'], why: 'O negative red blood cells are the "universal donor" type.', t: 3 },
+  { c: 'Human Body', e: '❤️', q: 'About how many times does your heart beat in one day?', a: 'About 100,000', w: ['About 10,000', 'About 1 million', 'About 1,000'], why: 'Around 70 beats a minute × 1,440 minutes in a day.', t: 3 },
+  { c: 'Animals', e: '🦆', q: 'Which of these mammals lays eggs?', a: 'Platypus', w: ['Beaver', 'Otter', 'Sloth'], why: 'Platypuses and echidnas are the only mammals that lay eggs.', t: 3 },
+  { c: 'Animals', e: '🐦‍⬛', q: 'What is a group of crows called?', a: 'A murder', w: ['A pride', 'A pod', 'A gaggle'], why: 'A pride is lions, a pod is whales, a gaggle is geese.', t: 3 },
+  { c: 'Geography', e: '🕐', q: 'Which country has the most time zones, counting its territories?', a: 'France', w: ['Russia', 'United States', 'China'], why: 'France has 12 thanks to islands around the world. Russia has 11.', t: 3 },
+  { c: 'Geography', e: '🌍', q: 'Which African country has the most people?', a: 'Nigeria', w: ['Egypt', 'Ethiopia', 'South Africa'], why: 'Nigeria has over 200 million people.', t: 3 },
+  { c: 'Geography', e: '🏞️', q: 'What is the longest river in Europe?', a: 'Volga', w: ['Danube', 'Rhine', 'Thames'], why: 'The Volga flows about 3,500 km through Russia into the Caspian Sea.', t: 3 },
+  { c: 'Geography', e: '🗺️', q: 'Which two countries share the longest land border?', a: 'Canada and the USA', w: ['Russia and China', 'Argentina and Chile', 'Russia and Kazakhstan'], why: 'It is about 8,900 km long, counting Alaska.', t: 3 },
+  { c: 'Earth', e: '🌊', q: 'About how much of Earth\'s surface is covered by water?', a: 'About 71%', w: ['About 50%', 'About 90%', 'About 30%'], why: 'Almost all of that is salty ocean water.', t: 3 },
+  { c: 'USA', e: '🏖️', q: 'Which US state has the longest coastline?', a: 'Alaska', w: ['Florida', 'California', 'Hawaii'], why: 'Alaska has more coastline than all other states put together.', t: 3 },
+  { c: 'USA', e: '🦞', q: 'Which is the only US state whose name has just one syllable?', a: 'Maine', w: ['Utah', 'Iowa', 'Ohio'], why: 'Say it out loud: Maine. Every other state has two or more.', t: 3 },
+  { c: 'History', e: '🚀', q: 'Who was the first person to walk on the Moon, in 1969?', a: 'Neil Armstrong', w: ['Buzz Aldrin', 'Yuri Gagarin', 'John Glenn'], why: 'Buzz Aldrin followed him about 20 minutes later. Gagarin was the first person in space.', t: 3 },
+  { c: 'History', e: '🏛️', q: 'Which of the Seven Wonders of the Ancient World is still standing?', a: 'Great Pyramid of Giza', w: ['Colossus of Rhodes', 'Lighthouse of Alexandria', 'Hanging Gardens of Babylon'], why: 'It is about 4,500 years old, and it is the oldest of the seven.', t: 3 },
+  { c: 'Chess', e: '♟️', q: 'What is the fastest possible checkmate in chess?', a: 'On move 2', w: ['On move 3', 'On move 4', 'On move 1'], why: 'Fool\'s Mate: 1.f3 e5 2.g4 Qh4#. Black wins on move 2.', t: 3 },
+  { c: 'Chess', e: '👑', q: 'Who became the youngest undisputed world chess champion in 2024, at age 18?', a: 'Gukesh Dommaraju', w: ['Magnus Carlsen', 'Garry Kasparov', 'Bobby Fischer'], why: 'Gukesh of India beat Ding Liren in December 2024.', t: 3 },
 ];
 
 // Fact or Fib: true/false speed round. f = true if it is a real fact.
@@ -173,6 +213,30 @@ export const FIBS = [
   { s: 'Antarctica is a desert.', f: true, why: 'Fact! It gets very little snow or rain each year.' },
   { s: 'Ecuador is named after the equator.', f: true, why: 'Fact! The equator runs right through it.' },
   { s: 'Some planets could float in water.', f: true, why: 'Fact! Saturn is less dense than water.' },
+  // ---- Hard (t: 3) ----
+  { s: 'Saturn has more known moons than Jupiter (as of 2025).', f: true, why: 'Fact! Saturn has over 270 known moons. Jupiter has about 95.', t: 3 },
+  { s: 'A teaspoon of neutron star would weigh about a billion tons.', f: true, why: 'Fact! Neutron stars are crushed so tight they are unbelievably heavy.', t: 3 },
+  { s: 'The top of Mount Chimborazo in Ecuador is the farthest point from Earth\'s center.', f: true, why: 'Fact! Earth bulges at the equator, so Chimborazo pokes out farther than Everest.', t: 3 },
+  { s: 'Experts estimate there are more possible chess games than atoms in the observable universe.', f: true, why: 'Fact! Roughly 10^120 games vs about 10^80 atoms.', t: 3 },
+  { s: 'Wombats make cube-shaped poop.', f: true, why: 'Fact! Their guts squeeze it into cubes, which stay put on rocks.', t: 3 },
+  { s: 'On Venus, the Sun rises in the west.', f: true, why: 'Fact! Venus spins the opposite way to most planets.', t: 3 },
+  { s: 'Sound travels about 4 times faster in water than in air.', f: true, why: 'Fact! About 1,500 m per second in water vs about 340 in air.', t: 3 },
+  { s: 'Russia is bigger than the whole surface of Pluto.', f: true, why: 'Fact! Russia is about 17.1 million km². Pluto\'s surface is about 16.6 million.', t: 3 },
+  { s: 'A bishop stays on squares of one color for the whole game.', f: true, why: 'Fact! It only moves diagonally, so it never changes color.', t: 3 },
+  { s: 'Australia is wider than the Moon.', f: true, why: 'Fact! Australia is about 4,000 km across. The Moon is about 3,475 km wide.', t: 3 },
+  { s: 'Canada has more lakes than all other countries combined.', f: true, why: 'Fact! Canada has more than half of all the lakes in the world.', t: 3 },
+  { s: 'The Great Wall of China is one single unbroken wall.', f: false, why: 'Fib! It is many walls built over hundreds of years, with gaps between them.', t: 3 },
+  { s: 'A light-year is a way of measuring time.', f: false, why: 'Fib! It measures distance: how far light travels in a year.', t: 3 },
+  { s: 'Old windows are thicker at the bottom because glass slowly flows like a liquid.', f: false, why: 'Fib! Old glass was just made unevenly, and builders put the thick side down.', t: 3 },
+  { s: 'Diamonds are made from squashed coal.', f: false, why: 'Fib! Most diamonds formed deep in the mantle, far below any coal.', t: 3 },
+  { s: 'Mount Everest is in India.', f: false, why: 'Fib! It sits on the border of Nepal and China.', t: 3 },
+  { s: 'The Moon makes its own light.', f: false, why: 'Fib! Moonlight is sunlight bouncing off the Moon.', t: 3 },
+  { s: 'In chess, a pawn can capture the piece straight in front of it.', f: false, why: 'Fib! Pawns move straight but capture diagonally.', t: 3 },
+  { s: 'Water boils at 100 °C everywhere, even on top of a high mountain.', f: false, why: 'Fib! Up high the air pressure is lower, so water boils at a lower temperature.', t: 3 },
+  { s: 'We have summer because Earth gets closer to the Sun.', f: false, why: 'Fib! Seasons come from Earth\'s tilt. Earth is actually closest to the Sun in January.', t: 3 },
+  { s: 'The Amazon River flows into the Pacific Ocean.', f: false, why: 'Fib! It flows east into the Atlantic Ocean.', t: 3 },
+  { s: 'A whale shark is a kind of whale.', f: false, why: 'Fib! It is a shark, which makes it a fish. It is the biggest fish alive.', t: 3 },
+  { s: 'Napoleon was extremely short for his time.', f: false, why: 'Fib! He was about average height. The myth comes partly from old French inches.', t: 3 },
 ];
 
 export const LEVEL_TITLES = ['Rookie', 'Scout', 'Explorer', 'Navigator', 'Tactician', 'Strategist', 'Captain', 'Mastermind', 'Professor', 'Legend'];

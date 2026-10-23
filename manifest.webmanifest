@@ -1,6 +1,6 @@
 {
-  "name": "Genius Stadium",
-  "short_name": "Genius Stadium",
+  "name": "Brainiac FunZone",
+  "short_name": "FunZone",
   "description": "Fast brain games: maps, flags, chess puzzles, soccer trivia and wild facts.",
   "start_url": "./",
   "scope": "./",
@@ -9,7 +9,29 @@
   "background_color": "#0b1a2e",
   "theme_color": "#0b1a2e",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

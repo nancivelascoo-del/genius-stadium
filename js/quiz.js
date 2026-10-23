@@ -2,8 +2,13 @@
 import { S, save, $, $$, esc, sfx, toast, confetti, addXP, bump, setMax, recordBest, checkBadges, touchStreak, fmtTime, levelFor, titleFor, go, hook, onCleanup, topbar, miss, fixed } from './core.js';
 
 // ---------- results ----------
+// Review data for the round that just ended. Set by the game right before finishRound().
+let pendingReview = null;
+export function setReview(r) { pendingReview = r; }
+export function clearReview() { pendingReview = null; }
 export function finishRound(view, o) {
   // o: {key, title, back, again, score, time, acc, total, right, xp, lines, bestBy:'time'|'score', perfectMin}
+  const rv = o.review || pendingReview; pendingReview = null;
   bump('rounds');
   if (o.acc === 100 && (o.total || 0) >= (o.perfectMin || 10)) bump('perfect');
   const streakMsg = touchStreak();
@@ -29,8 +34,11 @@ export function finishRound(view, o) {
       <button class="btn big primary" data-testid="again">Play again</button>
       <button class="btn big" data-go="${o.back}" data-testid="done">Done</button>
     </div>
-  </section>`;
+    ${rv && rv.items.length ? `<button class="btn rvjump" data-testid="review-jump">📋 Review your answers ↓</button>` : ''}
+  </section>
+  ${rv && rv.items.length ? reviewHtml(rv) : ''}`;
   $('[data-testid=again]', view).onclick = () => { sfx.tap(); o.again(); };
+  if (rv && rv.items.length) wireReview(view, rv);
   if (stars >= 2 || newBest) { confetti(newBest ? 70 : 35); sfx.win(); }
   if (lvlUp) { const t = setTimeout(() => levelUp(lvlUp), 600); onCleanup(() => clearTimeout(t)); }
 }
@@ -44,7 +52,7 @@ export function levelUp(lvl) {
 // ---------- quiz ----------
 // questions: [{prompt, sub?, img?, choices:[...], answer: index, why?, kind?, id?, tf?}]
 export function runQuiz(view, opts) {
-  const qs = opts.questions; const T = (opts.time || 12) * 1000;
+  const qs = opts.questions; const T = (opts.time || 12) * 1000; const log = []; pendingReview = null;
   let i = 0, score = 0, right = 0, combo = 0, maxCombo = 0, t0 = 0, timer = null, locked = false, goals = 0;
   const startAll = performance.now();
   view.innerHTML = `${topbar(esc(opts.title), opts.back, `<div class="hud"><span class="pill" data-testid="qcount"></span><span class="pill score" data-testid="score">0</span></div>`)}
@@ -73,6 +81,7 @@ export function runQuiz(view, opts) {
     if (locked) return; locked = true; clearTimeout(timer);
     const q = qs[i]; const dt = performance.now() - t0; const ok = k === q.answer;
     const btns = $$('.choice', el.ch); btns.forEach(b => b.disabled = true);
+    log.push({ type: 'q', q, prompt: q.prompt, img: q.img || q.sub || '', html: !!q.flags, mine: k >= 0 ? q.choices[k] : null, right: q.choices[q.answer], ok, why: q.why || '' });
     if (btns[q.answer]) btns[q.answer].classList.add('right');
     if (!ok && k >= 0) btns[k].classList.add('wrong');
     el.bar.style.transition = 'none'; el.bar.style.width = el.bar.getBoundingClientRect().width / el.bar.parentElement.getBoundingClientRect().width * 100 + '%';
@@ -87,13 +96,15 @@ export function runQuiz(view, opts) {
     el.why.innerHTML = (ok ? '<b class="ok">✓ Nice!</b> ' : `<b class="no">${k < 0 ? '⏰ Time!' : '✗'}</b> `) + (q.why ? esc(q.why) : '');
     el.why.classList.add('show');
     const next = () => { i++; if (i >= qs.length) done(); else show(); };
-    if (opts.penalty) { penaltyKick(el.pitch, view, ok, dt < T * 0.4).then(g => { if (g) goals++; setTimeout(next, 700); }); return; }
+    if (opts.penalty) { penaltyKick(el.pitch, view, ok, dt < T * [0.4, 0.4, 0.4, 0.33, 0.25][opts.keeper || 1], opts.keeper || 1).then(g => { if (g) goals++; setTimeout(next, 700); }); return; }
     if (ok) setTimeout(next, q.why ? 1500 : 800);
     else { const nb = document.createElement('button'); nb.className = 'btn primary next'; nb.dataset.testid = 'next'; nb.textContent = 'Next ▶'; nb.onclick = () => { sfx.tap(); next(); }; el.why.appendChild(nb); }
   }
   function done() {
     el.prog.style.width = '100%'; setMax('bestCombo', maxCombo);
     const acc = Math.round(right / qs.length * 100);
+    const missedQs = log.filter(x => !x.ok).map(x => x.q);
+    pendingReview = { items: log, retry: missedQs.length ? () => go('retryquiz', { title: opts.title, back: opts.back, questions: missedQs, time: opts.time, penalty: opts.penalty, keeper: opts.keeper }) : null };
     opts.onDone({ score, right, total: qs.length, acc, maxCombo, goals, time: performance.now() - startAll });
   }
   show();
@@ -115,12 +126,13 @@ function drawPitch(box) {
 }
 function tally(box) { const g = +box.dataset.goals, k = +box.dataset.kicks; box.querySelector('.tally').innerHTML = [...Array(5)].map((_, i) => `<i class="${i < k ? (i < k && box.dataset['k' + i] === '1' ? 'g' : 'm') : ''}"></i>`).join('') + ` <b>${g}</b>`; }
 const ZONES = [[100, 50], [200, 50], [300, 50], [100, 120], [200, 120], [300, 120]];
-function penaltyKick(box, view, correct, fast) {
+function penaltyKick(box, view, correct, fast, keeper = 1) {
   return new Promise(resolve => {
     const svg = box.querySelector('svg'), keeper = svg.querySelector('.keeper'), ball = svg.querySelector('.ball'), zones = svg.querySelector('.zones'), msg = box.querySelector('.kickmsg');
     const finish = (goal, zone) => {
       const kz = Math.floor(Math.random() * 3); // keeper guesses a side
-      let saved = !goal || (!fast && kz === zone % 3 && (zone >= 3 || Math.random() < 0.5));
+      // Harder levels = quicker keeper: on Hard he also reaches high shots, on Expert he can save even off his guess.
+      let saved = !goal || (!fast && kz === zone % 3 && (zone >= 3 || keeper >= 3 || Math.random() < 0.5)) || (!fast && keeper === 4 && Math.random() < 0.25);
       if (!correct) saved = true;
       const [zx, zy] = ZONES[zone];
       const kx = [110, 200, 290][saved ? zone % 3 : kz]; const rot = (saved ? zone % 3 : kz) === 0 ? -60 : (saved ? zone % 3 : kz) === 2 ? 60 : 0;
@@ -146,3 +158,31 @@ export function mc(prompt, right, wrongs, extra = {}) {
   const choices = [right, ...wrongs.slice(0, 3)].map(String); const order = choices.map((_, k) => k).sort(() => Math.random() - 0.5);
   return { prompt, choices: order.map(k => choices[k]), answer: order.indexOf(0), ...extra };
 }
+
+// ---------- review screen ----------
+const MARK = ok => ok ? '<span class="rvmark ok" aria-label="right">✓</span>' : '<span class="rvmark no" aria-label="wrong">✗</span>';
+function reviewHtml(rv) {
+  const right = rv.items.filter(x => x.ok).length, missed = rv.items.length - right;
+  return `<section class="review card" data-testid="review"><div class="rvhead"><h2>📋 Review <small>${right}/${rv.items.length} right</small></h2>
+    ${missed && rv.retry ? `<button class="btn primary" data-testid="retry-missed">🔁 Retry the ${missed} you missed</button>` : missed ? '' : '<span class="okline">Perfect! Nothing to fix. 🌟</span>'}</div>
+    ${rv.top || ''}
+    <ol class="rvlist">${rv.items.map((it, n) => `<li class="rv ${it.ok ? 'ok' : 'no'}" data-testid="review-item" data-ok="${it.ok ? 1 : 0}"${it.id ? ` data-id="${esc(it.id)}"` : ''}>${MARK(it.ok)}<div class="rvbody">${itemHtml(it, n)}</div></li>`).join('')}</ol></section>`;
+}
+function itemHtml(it, n) {
+  if (it.html_full) return it.html_full;
+  const val = v => v == null ? '<i>⏰ no answer</i>' : it.html ? v : esc(v);
+  return `<div class="rvq">${it.prompt}</div>${it.img ? `<div class="rvimg">${it.img}</div>` : ''}
+    <div class="rva">${it.ok ? `<span>✓ ${val(it.right)}</span>` : `<span class="mine">Your answer: ${val(it.mine)}</span><span class="right">Correct: ${val(it.right)}</span>`}</div>
+    ${it.why ? `<div class="rvwhy">💡 ${esc(it.why)}</div>` : ''}`;
+}
+function wireReview(view, rv) {
+  const j = $('[data-testid=review-jump]', view); if (j) j.onclick = () => { sfx.tap(); $('[data-testid=review]', view).scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  const r = $('[data-testid=retry-missed]', view); if (r) r.onclick = () => { sfx.tap(); rv.retry(); };
+  if (rv.wire) rv.wire(view);
+}
+// Retry only the questions you missed (no best score, small XP)
+import { route as _route } from './core.js';
+_route('retryquiz', (view, p) => {
+  runQuiz(view, { title: '🔁 ' + p.title.replace(/^🔁 /, ''), back: p.back, questions: p.questions.map(q => ({ ...q })), time: p.time, penalty: p.penalty, keeper: p.keeper,
+    onDone: r => finishRound(view, { title: 'Retry: ' + p.title.replace(/^🔁 /, ''), back: p.back, again: () => go('retryquiz', p), acc: r.acc, total: r.total, big: r.right + '/' + r.total + ' fixed', xp: r.right * 6, lines: [['Fixed', r.right + '/' + r.total]] }) });
+});

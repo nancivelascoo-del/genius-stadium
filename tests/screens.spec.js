@@ -33,6 +33,14 @@ const PATHS = [
   ['facts-quiz', ['go-facts', 'factquiz'], 'factquiz'],
   ['facts-vault', ['go-facts', 'vault'], 'vault'],
   ['trophies', ['go-trophies'], 'trophies'],
+  ['chess-vs', ['go-chess', 'go-vs'], 'vs'],
+  ['chess-vs-game', ['go-chess', 'go-vs', 'opp'], 'vsgame'],
+  ['chess-placement', ['go-chess', 'placement'], 'placement'],
+  ['chess-blitz-hard', ['go-chess', 'blitz-5', 'blitz-hard', 'sprint'], 'sprint'],
+  ['chess-rated', ['go-chess', 'rated'], 'rated'],
+  ['chess-ccstats', ['go-chess', 'go-ccstats'], 'ccstats'],
+  ['geo-expert-flags', ['go-geo', 'tab-world', 'lvl-4', 'flags'], 'flagquiz'],
+  ['daily-hard', ['go-daily', 'daily-hard'], 'daily'],
 ];
 
 for (const [name, taps, want] of PATHS) {
@@ -70,16 +78,16 @@ test('every region chip and level chip works', async ({ page }) => {
   await page.locator('[data-testid=tab-world]').click();
   const n = await page.locator('[data-testid=regions] .chip').count(); expect(n).toBe(7);
   for (let i = 0; i < n; i++) { await page.locator('[data-testid=regions] .chip').nth(i).click(); await expect(page.locator('[data-testid=regions] .chip').nth(i)).toHaveClass(/on/); }
-  for (const l of [1, 2, 3]) { await page.locator(`[data-testid=lvl-${l}]`).first().click(); await expect(page.locator(`[data-testid=lvl-${l}]`).first()).toHaveClass(/on/); }
+  for (const l of [1, 2, 3, 4]) { await page.locator(`[data-testid=lvl-${l}]`).first().click(); await expect(page.locator(`[data-testid=lvl-${l}]`).first()).toHaveClass(/on/); }
   await open(page, 'soccer');
-  for (const l of [3, 2, 1]) { await page.locator(`[data-testid=lvl-${l}]`).click(); await expect(page.locator(`[data-testid=lvl-${l}]`)).toHaveClass(/on/); }
+  for (const l of [4, 3, 2, 1]) { await page.locator(`[data-testid=lvl-${l}]`).click(); await expect(page.locator(`[data-testid=lvl-${l}]`)).toHaveClass(/on/); }
   w.expectClean();
 });
 
 test('every chess lesson opens', async ({ page }) => {
   const w = watchErrors(page);
   await open(page, 'chess');
-  const n = await page.locator('[data-testid=lesson]').count(); expect(n).toBe(6);
+  const n = await page.locator('[data-testid=lesson]').count(); expect(n).toBe(11); // 6 lessons + 5 Pro lessons
   for (let i = 0; i < n; i++) {
     await page.locator('[data-testid=lesson]').nth(i).click(); expect(await screen(page)).toBe('lesson');
     await expect(page.locator('[data-testid=board] .sq')).toHaveCount(64);

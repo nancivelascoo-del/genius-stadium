@@ -140,14 +140,16 @@ test('chess: every lesson can be completed', async ({ page }) => {
   w.expectClean();
 });
 
-test('chess ladder: solve 5 and climb 5 rungs; sprint ends with a score', async ({ page }) => {
+test('chess ladder: 5 first-try solves fast-track to Tier 2; Puzzle Blitz ends with a score', async ({ page }) => {
   test.setTimeout(150000);
   const w = watchErrors(page);
   await open(page, 'chess');
   await page.locator('[data-testid=ladder]').click();
   for (let i = 0; i < 8 && !(await page.locator('[data-testid=results]').count()); i++) { await solvePuzzle(page); await page.waitForTimeout(1000); }
   await expect(page.locator('[data-testid=results]')).toBeVisible();
-  expect((await S(page)).ladder).toBe(5);
+  expect((await S(page)).ladder).toBeGreaterThanOrEqual(5);
+  await expect(page.locator('[data-testid=results]')).toContainText('Fast track');
+  expect(await page.evaluate(async () => (await import('./js/chess-mode.js')).tierOf(window.__gs.state().ladder))).toBe(2);
   await go(page, 'sprint');
   await solvePuzzle(page); await page.waitForTimeout(1000);
   await expect(page.locator('[data-testid=score]')).toHaveText('1');

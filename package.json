@@ -1,7 +1,7 @@
 {
   "name": "genius-stadium",
   "private": true,
-  "description": "Automated QA checks for Genius Stadium (the game itself has no build step).",
+  "description": "Automated QA checks for Brainiac FunZone (the game itself has no build step).",
   "scripts": {
     "serve": "node tests/serve.js",
     "build:sw": "node tools/build-sw.js",

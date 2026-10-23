@@ -6,7 +6,7 @@ const BASE = '/' + (process.env.SITE_BASE || path.basename(ROOT)) + '/';
 const PORT = +(process.argv[2] || process.env.PORT || 4173);
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.ogg': 'audio/ogg', '.txt': 'text/plain' };
+  '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.ogg': 'audio/ogg', '.txt': 'text/plain', '.wasm': 'application/wasm' };
 const HIDDEN = /^(node_modules|tests?|test-results|playwright-report|\.git|\.github|_site)(\/|$)|^package(-lock)?\.json$|^playwright\.config\.js$|^TESTING\.md$|^tools(\/|$)/;
 http.createServer((req, res) => {
   let u = decodeURIComponent(req.url.split('?')[0]);

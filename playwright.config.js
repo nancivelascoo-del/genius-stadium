@@ -1,4 +1,4 @@
-// Automated QA for Genius Stadium. See TESTING.md.
+// Automated QA for Brainiac FunZone. See TESTING.md.
 const { defineConfig } = require('@playwright/test');
 const PORT = 4191;
 const SIZES = {

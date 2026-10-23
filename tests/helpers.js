@@ -1,4 +1,4 @@
-// Shared helpers for the Genius Stadium QA checks.
+// Shared helpers for the Brainiac FunZone QA checks.
 const { expect } = require('@playwright/test');
 const fs = require('fs'), path = require('path');
 
@@ -8,7 +8,7 @@ function watchErrors(page, { ignore = [] } = {}) {
   page.on('console', m => { if (m.type() === 'error' && !ignore.some(r => r.test(m.text()))) errors.push('console.error: ' + m.text()); });
   page.on('crash', () => errors.push('page crashed'));
   page.on('requestfailed', r => { if (!ignore.some(x => x.test(r.url()))) errors.push('request failed: ' + r.url()); });
-  page.on('response', r => { if (r.status() >= 400) errors.push('HTTP ' + r.status() + ': ' + r.url()); });
+  page.on('response', r => { if (r.status() >= 400 && !ignore.some(x => x.test(r.url()))) errors.push('HTTP ' + r.status() + ': ' + r.url()); });
   return { errors, expectClean: () => expect(errors, 'no console errors, failed loads or uncaught exceptions').toEqual([]) };
 }
 // Fresh load with the test hook turned on. `state` pre-loads saved progress.
